@@ -1,0 +1,41 @@
+#include <Arduino.h>
+#include <stdint.h>
+
+#define pot1 13  // Pin potenciómetro 1
+#define pot2 12  // Pin potenciómetro 2
+
+int mapeo = 0;
+int mapeo2 = 0;
+char comando = '0';
+
+void setup() {
+  Serial.begin(115200);     // Comunicación Serial a través de UART0
+  pinMode(pot1, INPUT);     // Configurar pines como entrada
+  pinMode(pot2, INPUT);
+}
+
+void loop() {
+  if (Serial.available() > 0) {
+    comando = Serial.read();  // Leer el comando desde UART0 (Serial)
+    Serial.print("Recibido: ");
+    Serial.println(comando);
+
+    if (comando == '1') {  // Comando '1': Leer y enviar valor del potenciómetro 1
+      int adc1 = analogRead(pot1);  // Leer el valor ADC del potenciómetro 1
+      mapeo = map(adc1, 0, 4095, 0, 15);  // Mapear el valor de 0-4095 a 0-15
+      Serial.print("El mapeo 1 es: ");
+      Serial.println(mapeo);
+      Serial.write(mapeo);  // Enviar el valor mapeado al STM32 a través de UART0
+    }
+
+    if (comando == '2') {  // Comando '2': Leer y enviar valor del potenciómetro 2
+      int adc2 = analogRead(pot2);  // Leer el valor ADC del potenciómetro 2
+      mapeo2 = map(adc2, 0, 4095, 0, 15);  // Mapear el valor de 0-4095 a 0-15
+      Serial.print("El mapeo 2 es: ");
+      Serial.println(mapeo2);
+      Serial.write(mapeo2);  // Enviar el valor mapeado al STM32 a través de UART0
+    }
+  }
+
+  delay(100);  // Pequeño retardo para evitar saturar la comunicación
+}
